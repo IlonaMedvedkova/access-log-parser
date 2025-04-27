@@ -13,6 +13,7 @@ public class Main {
         int yandexBotCount = 0;
         int googleBotCount = 0;
         int totalRequests = 0;
+        Statistics statistics = new Statistics();
         while (true){
             System.out.println("Введите путь к файлу: ");
             String path = new Scanner(System.in).nextLine();
@@ -39,6 +40,9 @@ public class Main {
                             linesNum++;
                             totalRequests++;
 
+                            LogEntry logEntry = new LogEntry(line);
+                            statistics.addEntry(logEntry);
+
                             String userAgent = extractUserAgent(line);
                             if (userAgent.contains("YandexBot")) yandexBotCount++;
                             else if (userAgent.contains("Googlebot")) {
@@ -50,6 +54,7 @@ public class Main {
                         System.out.println("Всего строк: "+linesNum);
                         System.out.println("Доля запросов от YandexBot: "+ (double) yandexBotCount/totalRequests);
                         System.out.println("Доля запросов от GoogleBot: "+ (double) googleBotCount/totalRequests);
+                        System.out.println("Средняя скорость траффика за час: " + statistics.getTrafficRate()+ " байт/час");
 
                     }catch (FileNotFoundException fnf){
                         System.err.println("Файл не найден: "+fnf.getMessage());
