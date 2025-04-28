@@ -62,7 +62,7 @@ public class Main {
                         System.out.println("Существующие страницы:");
                         existingPages.forEach(System.out::println);
 
-                        Map<String, Integer> osFrequency = statistics.getOsFrequency();
+                        Map<String, Double> osFrequency = statistics.getOsStatistics();
                         System.out.println("Статистика операционных систем:");
                         osFrequency.forEach((os, count) -> System.out.println(os + ": " + count));
 
