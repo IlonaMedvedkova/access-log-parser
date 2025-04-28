@@ -10,7 +10,7 @@ public class Statistics {
     private LocalDateTime minTime;
     private LocalDateTime maxTime;
     private Set<String> existingPages;
-    private Map<String, Integer> osFrequency;
+    private Map<String, Double> osFrequency;
 
     public Statistics() {
         this.totalTraffic = 0;
@@ -31,19 +31,30 @@ public class Statistics {
             maxTime = entryTime;
         }
 
-        if (entry.getHttpCode().equals("200")) existingPages.add(entry.getRequestPath());
+        if (entry.getHttpCode().equals("200")) {
+            existingPages.add(entry.getRequestPath());
+        }
 
         String osType = entry.getUserAgent().getOsType();
-        osFrequency.put(osType, osFrequency.getOrDefault(osType, 0)+1);
-
+        osFrequency.put(osType, osFrequency.getOrDefault(osType, 0.0)+1);
     }
 
-    public Set<String> getExistingPages(){
+    public Set<String> getExistingPages() {
         return existingPages;
     }
 
-    public Map<String, Integer> getOsFrequency() {
-        return new HashMap<>(osFrequency);
+    public Map<String, Double> getOsStatistics() {
+        Map<String, Double> osStats = new HashMap<>();
+        double totalOsCount = osFrequency.values().stream().mapToDouble(Double::doubleValue).sum();
+
+        for (Map.Entry<String, Double> entry : osFrequency.entrySet()) {
+            String osType = entry.getKey();
+            double count = entry.getValue();
+            double percentage = (double) count / totalOsCount;
+            osStats.put(osType, percentage);
+        }
+
+        return osStats;
     }
 
     public double getTrafficRate() {
