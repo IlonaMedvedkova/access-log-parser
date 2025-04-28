@@ -1,5 +1,7 @@
 import java.io.*;
+import java.util.Map;
 import java.util.Scanner;
+import java.util.Set;
 import java.util.regex.Pattern;
 import java.util.regex.Matcher;
 
@@ -9,7 +11,7 @@ public class Main {
     }
 
     public static void isFile(){
-        int count = 0;
+        int fileCount = 0;
         int yandexBotCount = 0;
         int googleBotCount = 0;
         int totalRequests = 0;
@@ -21,8 +23,8 @@ public class Main {
             boolean isFile = file.isFile();
                 if (isFile){
                     System.out.println("Путь указан верно");
-                    count++;
-                    System.out.println("Это файл номер " + count);
+                    fileCount++;
+                    System.out.println("Это файл номер " + fileCount);
 
                     int linesNum = 0;
                     try {
@@ -55,6 +57,14 @@ public class Main {
                         System.out.println("Доля запросов от YandexBot: "+ (double) yandexBotCount/totalRequests);
                         System.out.println("Доля запросов от GoogleBot: "+ (double) googleBotCount/totalRequests);
                         System.out.println("Средняя скорость траффика за час: " + statistics.getTrafficRate()+ " байт/час");
+
+                        Set<String> existingPages = statistics.getExistingPages();
+                        System.out.println("Существующие страницы:");
+                        existingPages.forEach(System.out::println);
+
+                        Map<String, Integer> osFrequency = statistics.getOsFrequency();
+                        System.out.println("Статистика операционных систем:");
+                        osFrequency.forEach((os, count) -> System.out.println(os + ": " + count));
 
                     }catch (FileNotFoundException fnf){
                         System.err.println("Файл не найден: "+fnf.getMessage());
