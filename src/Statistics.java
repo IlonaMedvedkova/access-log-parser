@@ -11,6 +11,8 @@ public class Statistics {
     private LocalDateTime maxTime;
     private Set<String> existingPages;
     private Map<String, Double> osFrequency;
+    private Set<String> notExistingPages;
+    private Map<String, Double> browserFrequency;
 
     public Statistics() {
         this.totalTraffic = 0;
@@ -18,6 +20,8 @@ public class Statistics {
         this.maxTime = null;
         this.existingPages = new HashSet<>();
         this.osFrequency = new HashMap<>();
+        this.notExistingPages = new HashSet<>();
+        this.browserFrequency = new HashMap<>();
     }
 
     public void addEntry(LogEntry entry) {
@@ -35,12 +39,23 @@ public class Statistics {
             existingPages.add(entry.getRequestPath());
         }
 
+        if (entry.getHttpCode().equals("404")) {
+            notExistingPages.add(entry.getRequestPath());
+        }
+
         String osType = entry.getUserAgent().getOsType();
         osFrequency.put(osType, osFrequency.getOrDefault(osType, 0.0)+1);
+
+        String browserType = entry.getUserAgent().getBrowserType();
+        browserFrequency.put(browserType, browserFrequency.getOrDefault(browserType, 0.0)+1);
     }
 
     public Set<String> getExistingPages() {
         return existingPages;
+    }
+
+    public Set<String> getNotExistingPages() {
+        return notExistingPages;
     }
 
     public Map<String, Double> getOsStatistics() {
@@ -55,6 +70,19 @@ public class Statistics {
         }
 
         return osStats;
+    }
+
+    public Map<String, Double> getBrowserStatistics(){
+        Map<String, Double> browserStats = new HashMap<>();
+        double totalBrowserCount = browserFrequency.values().stream().mapToDouble(Double::doubleValue).sum();
+
+        for(Map.Entry<String, Double> entry : browserFrequency.entrySet()){
+            String browserType = entry.getKey();
+            double count = entry.getValue();
+            double percentage = (double) count/totalBrowserCount;
+            browserStats.put(browserType, percentage);
+        }
+        return browserStats;
     }
 
     public double getTrafficRate() {
