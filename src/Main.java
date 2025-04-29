@@ -56,7 +56,7 @@ public class Main {
                         System.out.println("Всего строк: "+linesNum);
                         System.out.println("Доля запросов от YandexBot: "+ (double) yandexBotCount/totalRequests);
                         System.out.println("Доля запросов от GoogleBot: "+ (double) googleBotCount/totalRequests);
-                        System.out.println("Средняя скорость траффика за час: " + statistics.getTrafficRate()+ " байт/час");
+                        System.out.println("Средняя скорость трафика за час: " + statistics.getTrafficRate()+ " байт/час");
 
                         Set<String> existingPages = statistics.getExistingPages();
                         System.out.println("Существующие страницы:");
@@ -65,6 +65,14 @@ public class Main {
                         Map<String, Double> osFrequency = statistics.getOsStatistics();
                         System.out.println("Статистика операционных систем:");
                         osFrequency.forEach((os, count) -> System.out.println(os + ": " + count));
+
+                        Set<String> notExistingPages = statistics.getNotExistingPages();
+                        System.out.println("Несуществующие страницы:");
+                        notExistingPages.forEach(System.out::println);
+
+                        Map<String, Double> browserFrequency = statistics.getBrowserStatistics();
+                        System.out.println("Статистика браузеров:");
+                        browserFrequency.forEach((browser, percentage) -> System.out.println(browser + ": " + percentage));
 
                     }catch (FileNotFoundException fnf){
                         System.err.println("Файл не найден: "+fnf.getMessage());
