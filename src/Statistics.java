@@ -1,9 +1,6 @@
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
-import java.util.HashSet;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 public class Statistics {
     private int totalTraffic;
@@ -16,6 +13,9 @@ public class Statistics {
     private int totalVisits;
     private Set<String> uniqueIPs;
     private int errorRequests;
+    private Map<Integer, Integer> visitsPerSecond;
+    private Set<String> refererDomains;
+    private List<LogEntry> logEntries;
 
     public Statistics() {
         this.totalTraffic = 0;
@@ -28,6 +28,9 @@ public class Statistics {
         this.totalVisits = 0;
         this.errorRequests = 0;
         this.uniqueIPs = new HashSet<>();
+        this.visitsPerSecond = new HashMap<>();
+        this.refererDomains = new HashSet<>();
+        this.logEntries = new ArrayList<>();
     }
 
     public void addEntry(LogEntry entry) {
@@ -58,11 +61,22 @@ public class Statistics {
         if(!UserAgent.isBot(entry.getUserAgent().getUserAgentString())){
             totalVisits++;
             uniqueIPs.add(entry.getIpAddress());
+
+            int second = entryTime.getSecond();
+            visitsPerSecond.put(second, visitsPerSecond.getOrDefault(second, 0)+1);
         }
 
         if (entry.getHttpCode().startsWith("4")||entry.getHttpCode().startsWith("5")){
             errorRequests++;
         }
+
+        String referer = entry.getReferer();
+        if (!referer.isEmpty()){
+            String domain = extractDomain(referer);
+            refererDomains.add(domain);
+        }
+
+        logEntries.add(entry);
     }
 
     public Set<String> getExistingPages() {
@@ -141,6 +155,39 @@ public class Statistics {
     public double getAverageVisitsPerUser(){
         if(uniqueIPs.isEmpty()) return 0.0;
         return (double) totalVisits/uniqueIPs.size();
+    }
+
+    public int getPeakVisitsPerSec(){
+        return visitsPerSecond.values().stream().mapToInt(Integer::intValue).max().orElse(0);
+    }
+
+    public Set<String> getRefererDomains(){
+        return refererDomains;
+    }
+
+    public int getMaxVisitsPerUser() {
+        Map<String, Integer> visitsPerIp = new HashMap<>();
+        for (String ip : uniqueIPs) {
+            visitsPerIp.put(ip, 0);
+        }
+
+        for (LogEntry entry : logEntries) {
+            if (!UserAgent.isBot(entry.getUserAgent().getUserAgentString())) {
+                String ip = entry.getIpAddress();
+                visitsPerIp.put(ip, visitsPerIp.getOrDefault(ip, 0) + 1);
+            }
+        }
+
+        return visitsPerIp.values().stream().mapToInt(Integer::intValue).max().orElse(0);
+    }
+
+    private String extractDomain(String referer) {
+        int start = referer.indexOf("//") + 2;
+        int end = referer.indexOf("/", start);
+        if (end == -1) {
+            end = referer.length();
+        }
+        return referer.substring(start, end);
     }
 
 }
