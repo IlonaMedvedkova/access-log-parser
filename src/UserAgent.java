@@ -1,8 +1,11 @@
 public class UserAgent {
     private final String osType;
     private final String browserType;
+    private final String userAgentString;
 
     public UserAgent(String userAgentString) {
+        this.userAgentString = userAgentString;
+
         String[] parts = userAgentString.split(";");
         if (parts.length>=2){
             String fragments = parts[1].trim();
@@ -43,5 +46,13 @@ public class UserAgent {
 
     public String getBrowserType() {
         return browserType;
+    }
+
+    public String getUserAgentString() {
+        return userAgentString;
+    }
+
+    public static boolean isBot(String userAgent) {
+        return userAgent.contains("bot");
     }
 }

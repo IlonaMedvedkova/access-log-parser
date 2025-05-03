@@ -74,6 +74,10 @@ public class Main {
                         System.out.println("Статистика браузеров:");
                         browserFrequency.forEach((browser, percentage) -> System.out.println(browser + ": " + percentage));
 
+                        System.out.println("Средняя посещаемость за час: "+statistics.getAverageVisitsPerHour());
+                        System.out.println("Средняя посещаемость одним пользователем: "+statistics.getAverageVisitsPerUser());
+                        System.out.println("Средняя частота ошибочных запросов за час: "+statistics.getAverageErrorsPerHour());
+
                     }catch (FileNotFoundException fnf){
                         System.err.println("Файл не найден: "+fnf.getMessage());
                         fnf.printStackTrace();
