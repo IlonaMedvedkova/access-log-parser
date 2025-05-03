@@ -13,6 +13,9 @@ public class Statistics {
     private Map<String, Double> osFrequency;
     private Set<String> notExistingPages;
     private Map<String, Double> browserFrequency;
+    private int totalVisits;
+    private Set<String> uniqueIPs;
+    private int errorRequests;
 
     public Statistics() {
         this.totalTraffic = 0;
@@ -22,6 +25,9 @@ public class Statistics {
         this.osFrequency = new HashMap<>();
         this.notExistingPages = new HashSet<>();
         this.browserFrequency = new HashMap<>();
+        this.totalVisits = 0;
+        this.errorRequests = 0;
+        this.uniqueIPs = new HashSet<>();
     }
 
     public void addEntry(LogEntry entry) {
@@ -48,6 +54,15 @@ public class Statistics {
 
         String browserType = entry.getUserAgent().getBrowserType();
         browserFrequency.put(browserType, browserFrequency.getOrDefault(browserType, 0.0)+1);
+
+        if(!UserAgent.isBot(entry.getUserAgent().getUserAgentString())){
+            totalVisits++;
+            uniqueIPs.add(entry.getIpAddress());
+        }
+
+        if (entry.getHttpCode().startsWith("4")||entry.getHttpCode().startsWith("5")){
+            errorRequests++;
+        }
     }
 
     public Set<String> getExistingPages() {
@@ -97,4 +112,35 @@ public class Statistics {
 
         return (double) totalTraffic / hoursBetween;
     }
+
+    public double getAverageVisitsPerHour(){
+        if (minTime == null || maxTime == null) {
+            return 0.0;
+        }
+
+        long hoursBetween = ChronoUnit.HOURS.between(minTime, maxTime);
+        if (hoursBetween == 0) {
+            return 0.0;
+        }
+
+        return (double) totalVisits/hoursBetween;
+    }
+
+    public double getAverageErrorsPerHour(){
+        if (minTime == null || maxTime == null) {
+            return 0.0;
+        }
+
+        long hoursBetween = ChronoUnit.HOURS.between(minTime, maxTime);
+        if (hoursBetween == 0) {
+            return 0.0;
+        }
+        return (double) errorRequests/hoursBetween;
+    }
+
+    public double getAverageVisitsPerUser(){
+        if(uniqueIPs.isEmpty()) return 0.0;
+        return (double) totalVisits/uniqueIPs.size();
+    }
+
 }
